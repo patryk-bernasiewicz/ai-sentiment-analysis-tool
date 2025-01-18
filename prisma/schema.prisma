@@ -29,7 +29,7 @@ model SentimentEntry {
 
   analysis Analysis?
 
-  @@index([userId])
+  @@index([userId, id])
 }
 
 model Analysis {

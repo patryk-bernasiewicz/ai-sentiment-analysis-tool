@@ -1,4 +1,5 @@
 import { Analysis, SentimentEntry } from '@prisma/client';
+import Link from 'next/link';
 
 type EntryCardProps = {
   entry: SentimentEntry & { analysis?: Analysis };
@@ -7,7 +8,9 @@ type EntryCardProps = {
 export default function EntryCard({ entry }: EntryCardProps) {
   return (
     <div className="rounded-lg border border-white/10 px-3 py-2">
-      <p className="text-lg">{entry.content}</p>
+      <Link href={`/sentiments/${entry.id}`} className="text-lg">
+        {entry.content}
+      </Link>
       <div className="mt-2 text-sm text-white/80">
         {entry.analysis ? (
           <div>AI analysis: haha</div>
