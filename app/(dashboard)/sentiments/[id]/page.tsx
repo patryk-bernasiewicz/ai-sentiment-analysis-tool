@@ -1,6 +1,8 @@
 import { getUserByClerkId } from '@/utils/auth';
 import { prisma } from '@/utils/db';
 import { notFound } from 'next/navigation';
+import Editor from './_components/Editor';
+import Link from 'next/link';
 
 const getSingleEntry = async (entryId: string) => {
   const user = await getUserByClerkId();
@@ -38,12 +40,13 @@ export default async function SingleEntryPage({
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-xl">Single analysis entry</h1>
-      <p className="text-lg">{entry?.content}</p>
+      <Editor entry={entry} />
       {entry?.analysis ? (
         <div>AI analysis: haha</div>
       ) : (
         <div>No AI analysis yet</div>
       )}
+      <Link href="/sentiments">Back to list</Link>
     </div>
   );
 }

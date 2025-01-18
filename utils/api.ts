@@ -19,3 +19,19 @@ export const createNewEntry = async () => {
     return data.data;
   }
 };
+
+export const updateEntry = async (entryId: string, content: string) => {
+  const res = await fetch(
+    new Request(createUrl(`/api/entry/${entryId}`), {
+      method: 'PUT',
+      body: JSON.stringify({
+        content,
+      }),
+    }),
+  );
+
+  if (res.ok) {
+    const data = await res.json();
+    return data.data;
+  }
+};
