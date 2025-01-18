@@ -40,8 +40,14 @@ model Analysis {
   entryId String
   entry   SentimentEntry @relation(fields: [entryId], references: [id])
 
-  sentiment String
+  sentiment Sentiment
   summary   String
 
   @@unique([entryId])
+}
+
+enum Sentiment {
+  positive
+  negative
+  neutral
 }

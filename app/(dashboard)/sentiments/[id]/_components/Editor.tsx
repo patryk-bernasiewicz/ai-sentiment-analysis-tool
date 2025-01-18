@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { SentimentEntry } from '@prisma/client';
 import { updateEntry } from '@/utils/api';
 import { cn } from 'clsx-for-tailwind';
+import { useRouter } from 'next/navigation';
 
 type EditorProps = {
   entry: SentimentEntry;
@@ -13,6 +14,7 @@ const AUTOSAVE_DELAY = 1500;
 const SAVE_DELAY = 0;
 
 export default function Editor({ entry }: EditorProps) {
+  const router = useRouter();
   const [content, setContent] = useState(entry?.content || '');
   const [isPending, startTransition] = useTransition();
   const autosaveRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -22,12 +24,13 @@ export default function Editor({ entry }: EditorProps) {
     startTransition(async () => {
       await new Promise((resolve) => setTimeout(resolve, SAVE_DELAY));
       await updateEntry(entry.id, content);
+      router.refresh();
     });
-  }, [content, entry.id]);
+  }, [content, entry.id, router]);
 
   // handle autosave
   useEffect(() => {
-    if (!isMounted.current) {
+    if (!isMounted.current || content === entry.content) {
       isMounted.current = true;
       return;
     }
@@ -38,11 +41,11 @@ export default function Editor({ entry }: EditorProps) {
     return () => {
       clearTimeout(autosaveRef.current);
     };
-  }, [content, entry.id, handleSave]);
+  }, [content, entry.content, entry.id, handleSave]);
 
   // handle Ctrl+S combination to save
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (typeof window === 'undefined' || content === entry.content) {
       return;
     }
 
@@ -58,7 +61,7 @@ export default function Editor({ entry }: EditorProps) {
     return () => {
       window.removeEventListener('keydown', handleSaveCombination);
     };
-  }, [handleSave]);
+  }, [content, entry.content, handleSave]);
 
   return (
     <form action={handleSave}>
@@ -67,16 +70,10 @@ export default function Editor({ entry }: EditorProps) {
         Saving...
       </div>
       <textarea
-        className="h-32 w-full border border-gray-600 bg-slate-900 p-2 focus:border-gray-500 focus:outline-none"
+        className="h-32 w-full max-w-[400px] border border-gray-600 bg-slate-900 p-2 focus:border-gray-500 focus:outline-none"
         onChange={(e) => setContent(e.target.value)}
         value={content}
       />
-      <button
-        type="submit"
-        className="mt-2 rounded bg-blue-500 px-4 py-2 text-white"
-      >
-        Save
-      </button>
     </form>
   );
 }

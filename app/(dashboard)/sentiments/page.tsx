@@ -31,7 +31,7 @@ export default async function Sentiments() {
   const entries = await getEntries();
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 p-6">
       <h1 className="text-2xl font-bold">Your current entries</h1>
       <NewEntry />
       <ul className="flex flex-col gap-4">

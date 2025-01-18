@@ -1,3 +1,4 @@
+import { analyze } from '@/utils/ai';
 import { getUserByClerkId } from '@/utils/auth';
 import { prisma } from '@/utils/db';
 import { revalidatePath } from 'next/cache';
@@ -27,13 +28,32 @@ export const PUT = async (
         userId: user?.id,
       },
     },
+    include: {
+      analysis: true,
+    },
     data: {
       content,
     },
   });
 
+  const analysis = await analyze(content);
+
+  if (analysis) {
+    entry.analysis = await prisma.analysis.upsert({
+      where: {
+        entryId: entry.id,
+      },
+      create: {
+        entryId: entry.id,
+        ...analysis,
+      },
+      update: analysis,
+    });
+  }
+
   revalidatePath('/sentiments');
-  revalidatePath(`/sentiments/${id}`);
+  revalidatePath(`/sentiments/${entry.id}`);
+  revalidatePath(`/sentiments/${entry.id}/@aianalysis`);
 
   return NextResponse.json({ data: entry });
 };

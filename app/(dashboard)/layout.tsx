@@ -17,7 +17,7 @@ export default async function DashboardLayout({
             <UserButton />
           </div>
         </header>
-        <main className="p-4">{children}</main>
+        {children}
       </div>
     </div>
   );

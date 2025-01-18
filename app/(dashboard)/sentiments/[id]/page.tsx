@@ -11,42 +11,44 @@ const getSingleEntry = async (entryId: string) => {
     throw new Error('User not found');
   }
 
-  const entry = prisma.sentimentEntry.findUnique({
+  const entry = await prisma.sentimentEntry.findUniqueOrThrow({
     where: {
       id: entryId,
       AND: {
         userId: user.id,
       },
     },
-    include: {
-      analysis: true,
-    },
   });
 
   return entry;
 };
 
+export type SingleEntryPageParams = Promise<{
+  id: string;
+}>;
+
 export default async function SingleEntryPage({
   params,
 }: {
-  params: { id: string };
+  params: SingleEntryPageParams;
 }) {
-  const entry = await getSingleEntry(params.id);
+  const id = (await params).id;
+  const entry = await getSingleEntry(id);
 
   if (!entry) {
     return notFound();
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-xl">Single analysis entry</h1>
+    <>
+      <h1 className="mb-6 text-xl font-bold">Single analysis entry</h1>
       <Editor entry={entry} />
-      {entry?.analysis ? (
-        <div>AI analysis: haha</div>
-      ) : (
-        <div>No AI analysis yet</div>
-      )}
-      <Link href="/sentiments">Back to list</Link>
-    </div>
+      <Link
+        href="/sentiments"
+        className="inline-flex max-w-[180px] bg-slate-700 px-3 py-2 font-semibold text-white"
+      >
+        Back to list
+      </Link>
+    </>
   );
 }
